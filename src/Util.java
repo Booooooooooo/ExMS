@@ -14,13 +14,13 @@ public class Util {
     private final String passwd = "wyb980401";
 
     public Vector getQuery(String sql){
+        Vector ans = new Vector();
         try{
             Class.forName("com.mysql.jdbc.Driver");
             ct = DriverManager.getConnection(url, user, passwd);
             stat = ct.createStatement();
             rs = stat.executeQuery(sql);
 
-            Vector ans = new Vector();
             while(rs.next()){
                 Vector hang = new Vector();
 
@@ -45,5 +45,6 @@ public class Util {
                 e.printStackTrace();
             }
         }
+        return ans;
     }
 }
