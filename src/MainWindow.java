@@ -1,6 +1,10 @@
 import com.sun.corba.se.impl.orbutil.graph.Graph;
+import com.sun.corba.se.spi.monitoring.StatisticMonitoredAttribute;
 
 import javax.swing.*;
+import javax.swing.border.EtchedBorder;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,9 +13,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Comparator;
 import java.util.Vector;
 
-public class MainWindow extends JFrame {
+public class MainWindow extends JFrame implements ActionListener{
 
     private Statement stat = null;
     private Connection ct = null;
@@ -31,7 +36,10 @@ public class MainWindow extends JFrame {
     private DefaultMutableTreeNode[] node;
     private DefaultMutableTreeNode[] sonNodes;
     private JTabbedPane pane;
-
+    private JPanel type;
+    private JPanel info;
+    private JTextArea typeInfo;
+    private JTextArea exInfo;
 
     public MainWindow(){
         super("题库管理系统");
@@ -45,6 +53,7 @@ public class MainWindow extends JFrame {
         addButton.setContentAreaFilled(false);
         addButton.setFocusPainted(false);
         addButton.setBorderPainted(false);
+        addButton.addActionListener(this);
         deleteButton = new JButton();
         deleteButton.setFont(font);
         deleteButton.setVerticalTextPosition(SwingConstants.BOTTOM);
@@ -85,6 +94,36 @@ public class MainWindow extends JFrame {
         toolPanel.add(Box.createHorizontalStrut(100));
         toolPanel.setBackground(null);
         toolPanel.setOpaque(false);
+
+        typeInfo = new JTextArea();
+        typeInfo.setFont(font);
+        exInfo = new JTextArea();
+        exInfo.setLineWrap(true);
+        exInfo.setSize(500, 500);
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(toolPanel);
+        type = new JPanel();
+        type.setOpaque(false);
+        type.setBackground(null);
+        type.add(typeInfo);
+        info = new JPanel();
+        info.setBackground(null);
+        info.setOpaque(false);
+        JScrollPane scr = new JScrollPane(exInfo);
+        exInfo.setFont(font);
+        info.add(scr);
+        UIManager.put("TabbedPane.contentOpaque", false);
+        pane = new JTabbedPane();
+        pane.addTab("查看题型", type);
+        pane.addTab("查看题目", info);
+        pane.setFont(font);
+        pane.setPreferredSize(new Dimension(600, 800));
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(pane);
+        panel.setBackground(null);
+        panel.setOpaque(false);
 
         DefaultMutableTreeNode top = new DefaultMutableTreeNode("课程管理");
         try{
@@ -137,43 +176,101 @@ public class MainWindow extends JFrame {
             }
         }
         tree = new JTree(top);
+        tree.addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
+            public void valueChanged(TreeSelectionEvent e) {
+                DefaultMutableTreeNode selectNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+                if(selectNode == null) return;
+                Object object = selectNode.getUserObject();
+                String name = object.toString();
+                String sqlType, sqlEx;
+                if(selectNode.isLeaf()){
+                    sqlEx = "select * from exercise, charpter where exercise.cour_id = charpter.cour_id and charpter.id = exercise.ch_id and charpter.name = \"" + name +"\"";
+                    sqlType = "";
+                }
+                else{
+                    sqlEx = "select * from exercise, course where exercise.cour_id = course.id and course.name = \"" + name + "\"";
+                    sqlType = "select * from type, course where type.cour_id = course.id and course.name = \"" + name + "\"";
+                }
+                try{
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    ct = DriverManager.getConnection(url, user, passwd);
+                    stat = ct.createStatement();
+                    rs = stat.executeQuery(sqlEx);
+
+                    String displayEx = "";
+                    while(rs.next()){
+                        displayEx += "题号：" + rs.getInt("id") + "\n题型：" + rs.getString("type")
+                                + "\n建立日期:" + rs.getString("date") + "\n分值：" + rs.getInt("score")
+                                + "\n题目：" + rs.getString("info") + "\n答案:" + rs.getString("ans") + "\n\n";
+                    }
+                    if(displayEx.equals("")){
+                        displayEx = "无题目";
+                    }
+                    exInfo.setText(displayEx);
+
+                    String displayType = "";
+                    if(sqlType.equals("")){
+                        typeInfo.setText("请选择课程");
+                    }else{
+                        rs = stat.executeQuery(sqlType);
+                        while(rs.next()){
+                            displayType += rs.getString("name") + "       " + rs.getInt("ex_num") + "题\n";
+                        }
+                        if(displayType.equals("")){
+                            displayType = "无题目";
+                        }
+                        typeInfo.setText(displayType);
+                    }
+
+                }catch (Exception ex){
+                    ex.printStackTrace();
+                }finally {
+                    try{
+                        if(rs != null){
+                            rs.close();
+                            rs = null;
+                        }
+                        if(stat != null){
+                            stat.close();
+                            stat = null;
+                        }
+                        if(ct != null){
+                            ct.close();
+                            ct = null;
+                        }
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        });
         tree.setFont(font);
         JScrollPane scroll = new JScrollPane(tree);
 
-        JPanel panel = new JPanel();
-        panel.add(toolPanel, BorderLayout.NORTH);
-        panel.setBackground(null);
-        panel.setOpaque(false);
-
-        JPanel pType = new JPanel(){
+        JPanel p = new JPanel(){
             protected void paintComponent(Graphics g){
                 ImageIcon icon = new ImageIcon("image/bg.jpg");
                 Image img = icon.getImage();
                 g.drawImage(img, 0, 0, getWidth(), getHeight(), icon.getImageObserver());
             }
         };
-        pType.setLayout(new BoxLayout(pType, BoxLayout.X_AXIS));
-        pType.add(Box.createHorizontalStrut(5));
-        pType.add(scroll);
-        pType.add(Box.createHorizontalStrut(50));
-        pType.add(panel);
-        JPanel pEx = new JPanel(){
-            protected void paintComponent(Graphics g){
-                ImageIcon icon = new ImageIcon("image/b.jpg");
-                Image img = icon.getImage();
-                g.drawImage(img, 0, 0, getWidth(), getHeight(), icon.getImageObserver());
-            }
-        };
-        pane = new JTabbedPane();
-        pane.addTab("查看题型", pType);
-        pane.addTab("查看题目", pEx);
-        pane.setFont(font);
-        pane.setBackground(Color.white);
-        add(pane);
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(Box.createHorizontalStrut(5));
+        p.add(scroll);
+        p.add(Box.createHorizontalStrut(10));
+        p.add(panel);
+        setContentPane(p);
         setSize(1000, 1000);
         Dimension screenSize = getToolkit().getScreenSize();
         setLocation(screenSize.width / 2 - getWidth() / 2, screenSize.height / 2 - getHeight() / 2);
         setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent event){
+        if(event.getSource() == addButton){
+
+        }
     }
 
     public static void main(String[] args){
