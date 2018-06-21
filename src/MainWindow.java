@@ -41,6 +41,8 @@ public class MainWindow extends JFrame implements ActionListener{
     private JTextArea typeInfo;
     private JTextArea exInfo;
 
+    private AddWin addWin;
+
     public MainWindow(){
         super("题库管理系统");
 
@@ -142,12 +144,12 @@ public class MainWindow extends JFrame implements ActionListener{
                 String name = rs.getString("name");
                 node[i] = new DefaultMutableTreeNode(name);
                 Statement sstat = ct.createStatement();
-                ResultSet rrs = sstat.executeQuery("select count(*) from charpter, course where course.name = \"" + name + "\" and course.id = charpter.cour_id");
+                ResultSet rrs = sstat.executeQuery("select count(*) from charpter where cour_name = \"" + name + "\"");
 
                 while(rrs.next()){
                     sonNodes = new DefaultMutableTreeNode[rrs.getInt(1)];
                 }
-                rrs = sstat.executeQuery("select charpter.name from charpter, course where course.name = \"" + name + "\" and course.id = charpter.cour_id");
+                rrs = sstat.executeQuery("select charpter.name from charpter where cour_name = \"" + name + "\"");
                 int j = 0;
                 while(rrs.next()){
                     sonNodes[j] = new DefaultMutableTreeNode(rrs.getString("name"));
@@ -185,12 +187,12 @@ public class MainWindow extends JFrame implements ActionListener{
                 String name = object.toString();
                 String sqlType, sqlEx;
                 if(selectNode.isLeaf()){
-                    sqlEx = "select * from exercise, charpter where exercise.cour_id = charpter.cour_id and charpter.id = exercise.ch_id and charpter.name = \"" + name +"\"";
+                    sqlEx = "select * from exercise, charpter where exercise.cour_name = charpter.cour_name  and charpter.name = \"" + name + "\" and ch_name = \"" + name +"\"";
                     sqlType = "";
                 }
                 else{
-                    sqlEx = "select * from exercise, course where exercise.cour_id = course.id and course.name = \"" + name + "\"";
-                    sqlType = "select * from type, course where type.cour_id = course.id and course.name = \"" + name + "\"";
+                    sqlEx = "select * from exercise where cour_name = \"" + name + "\"";
+                    sqlType = "select * from type where cour_name = \"" + name + "\"";
                 }
                 try{
                     Class.forName("com.mysql.cj.jdbc.Driver");
@@ -269,7 +271,7 @@ public class MainWindow extends JFrame implements ActionListener{
 
     public void actionPerformed(ActionEvent event){
         if(event.getSource() == addButton){
-
+            addWin = new AddWin();
         }
     }
 
