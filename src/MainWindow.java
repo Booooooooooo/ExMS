@@ -42,6 +42,7 @@ public class MainWindow extends JFrame implements ActionListener{
     private JTextArea exInfo;
 
     private AddWin addWin;
+    private DelWin delWin;
 
     public MainWindow(){
         super("题库管理系统");
@@ -272,6 +273,8 @@ public class MainWindow extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent event){
         if(event.getSource() == addButton){
             addWin = new AddWin();
+        }else if(event.getSource() == deleteButton){
+            delWin = new DelWin();
         }
     }
 

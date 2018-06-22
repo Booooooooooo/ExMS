@@ -1,8 +1,4 @@
-import com.sun.javafx.fxml.builder.JavaFXFontBuilder;
-import jdk.nashorn.internal.scripts.JO;
-
 import javax.swing.*;
-import javax.swing.text.StyledEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,9 +6,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Vector;
 
-public class AddWin extends JFrame implements ActionListener {
+public class DelWin extends JFrame implements ActionListener {
 
     private Statement stat = null;
     private Connection ct = null;
@@ -42,10 +37,10 @@ public class AddWin extends JFrame implements ActionListener {
     private JTextArea area;
     private JTextArea area1;
 
-    public AddWin(){
-        super("添加");
+    public DelWin(){
+        super("删除");
 
-        JLabel label = new JLabel("添加的课程名：");
+        JLabel label = new JLabel("删除的课程名：");
         field = new JTextField(20);
         field.setPreferredSize(new Dimension(20, 5));
         label.setFont(font);
@@ -161,78 +156,22 @@ public class AddWin extends JFrame implements ActionListener {
         chPanel.add(button1);
         chPanel.add(Box.createVerticalStrut(80));
 
-        JLabel label5 = new JLabel("题型：");
-        JLabel label6 = new JLabel("分值：");
-        JLabel label7 = new JLabel("课程：");
-        JLabel label8 = new JLabel("章节：");
-        JLabel label9 = new JLabel("题目：");
-        JLabel label10 = new JLabel("答案:");
+        JLabel label10 = new JLabel("题号:");
         field5 = new JTextField(20);
-        field6 = new JTextField(20);
-        field7 = new JTextField(20);
-        field8 = new JTextField(20);
-        area = new JTextArea();
-        area.setLineWrap(true);
-        area1 = new JTextArea();
-        area1.setLineWrap(true);
         button3 = new JButton("确认");
         button3.addActionListener(this);
-        label5.setFont(font);
-        label6.setFont(font);
-        label7.setFont(font);
-        label8.setFont(font);
-        label9.setFont(font);
         label10.setFont(font);
         field5.setFont(font);
-        field6.setFont(font);
-        field7.setFont(font);
-        field8.setFont(font);
-        area.setFont(font);
-        area.setPreferredSize(new Dimension(20, 50));
-        area1.setFont(font);
-        area1.setPreferredSize(new Dimension(20, 50));
         JScrollPane scroll1 = new JScrollPane(area);
-        JScrollPane scroll2 = new JScrollPane(area1);
         button3.setFont(font);
-        JPanel left = new JPanel();
-        left.setBackground(null);
-        left.setOpaque(false);
-        left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
-        left.add(label5);
-        left.add(Box.createVerticalStrut(20));
-        left.add(label6);
-        left.add(Box.createVerticalStrut(20));
-        left.add(label7);
-        left.add(Box.createVerticalStrut(20));
-        left.add(label8);
-        left.add(Box.createVerticalStrut(20));
-        left.add(label9);
-        left.add(Box.createVerticalStrut(20));
-        left.add(label10);
-        JPanel right = new JPanel();
-        right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
-        right.setBackground(null);
-        right.setOpaque(false);
-        right.add(field5);
-        right.add(Box.createVerticalStrut(5));
-        right.add(field6);
-        right.add(Box.createVerticalStrut(5));
-        right.add(field7);
-        right.add(Box.createVerticalStrut(5));
-        right.add(field8);
-        right.add(Box.createVerticalStrut(5));
-        right.add(scroll1);
-        right.add(Box.createVerticalStrut(5));
-        right.add(scroll2);
         JPanel eup = new JPanel();
         eup.setBackground(null);
         eup.setOpaque(false);
         eup.setLayout(new BoxLayout(eup, BoxLayout.X_AXIS));
-        eup.add(Box.createHorizontalStrut(20));
-        eup.add(left);
-        eup.add(Box.createHorizontalStrut(10));
-        eup.add(right);
-        eup.add(Box.createHorizontalStrut(20));
+        eup.add(Box.createHorizontalStrut(5));
+        eup.add(label10);
+        eup.add(Box.createHorizontalStrut(15));
+        eup.add(field5);
         exPanel = new JPanel(){
             protected void paintComponent(Graphics g){
                 ImageIcon icon = new ImageIcon("image/win.jpg");
@@ -241,16 +180,17 @@ public class AddWin extends JFrame implements ActionListener {
             }
         };
         exPanel.setLayout(new BoxLayout(exPanel, BoxLayout.Y_AXIS));
-        exPanel.add(Box.createVerticalStrut(30));
+        exPanel.add(Box.createVerticalStrut(120));
         exPanel.add(eup);
-        exPanel.add(Box.createVerticalStrut(20));
+        exPanel.add(Box.createVerticalStrut(50));
         exPanel.add(button3);
+        exPanel.add(Box.createVerticalStrut(110));
 
         JTabbedPane pane = new JTabbedPane();
-        pane.addTab("添加课程", coursePanel);
-        pane.addTab("添加章节", chPanel);
-        pane.addTab("添加题型", typePanel);
-        pane.addTab("添加题目", exPanel);
+        pane.addTab("删除课程", coursePanel);
+        pane.addTab("删除章节", chPanel);
+        pane.addTab("删除题型", typePanel);
+        pane.addTab("删除题目", exPanel);
         pane.setFont(font);
         pane.setPreferredSize(new Dimension(450, 400));
 
@@ -275,37 +215,36 @@ public class AddWin extends JFrame implements ActionListener {
         String sqlch = "";
         String sqlty = "";
         if(event.getSource() == button){
-         //课程
+            //课程
             String course = field.getText();
             //System.out.println(0);
-            sql = "insert into course(name) values(\"" + course + "\")";
+            sql = "delete from course where name = \"" + course + "\"";
         }else if(event.getSource() == button1){
             //章节
             String course = field3.getText();
             String ch = field4.getText();
             //System.out.println(1);
-            sql = "insert into charpter(name, cour_name) values(\"" + ch + "\", \"" + course + "\")";
+            sql = "delete from charpter where name = \"" + ch + "\" and cour_name =  \"" + course + "\"";
         }else if(event.getSource() == button2){
             //题型
-           // System.out.println(2);
+            // System.out.println(2);
             String course = field1.getText();
             String type = field2.getText();
             //System.out.println(course);
             //System.out.println(type);
-            sql = "insert into type(name, cour_name) values(\"" + type + "\", \"" + course + "\")";
+            sql = "delete from type where name = \"" + type + "\" and cour_name =  \"" + course + "\"";
+            sqlty = "delete from exercise where type = \"" + type + "\" and cour_name  = \"" + course + "\"";
         }else if(event.getSource() == button3){
             //题目
             //System.out.println(3);
-            String type = field5.getText();
-            String score = field6.getText();
-            String course = field7.getText();
-            String ch = field8.getText();
-            String info = area.getText();
-            String ans = area1.getText();
-            sql = "insert into exercise(type, score, cour_name, ch_name, info, ans) values(\"" + type + "\", " + score + ", \"" + course + "\", \"" + ch + "\", \"" + info + "\", \"" + ans + "\")";
-            sqlco = "update course set ex_num = ex_num + 1 where name = \"" + course + "\"";
-            sqlch = "update charpter set ex_num = ex_num + 1 where name = \"" + ch + "\"";
-            sqlty = "update type set ex_num = ex_num + 1 where name = \"" + type + "\" and cour_name = \"" + course + "\"";
+            String id = "";
+            id = field5.getText();
+            if(!id.equals("")){
+                sql = "delete from exercise where id = " + id;
+                sqlco = "update course set ex_num = ex_num - 1 where name in (select cour_name from exercise where id = " + id +")";
+                sqlch = "update charpter set ex_num = ex_num - 1 where name in (select ch_name from exercise where id = " + id +")";
+                sqlty = "update type set ex_num = ex_num - 1 where name in (select type from exercise where id = " +id + ") and cour_name in (select cour_name from exercise where id = " + id +")";
+            }
         }
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -318,21 +257,19 @@ public class AddWin extends JFrame implements ActionListener {
                 stat.executeUpdate(sqlch);
                 stat.executeUpdate(sqlty);
             }
-            JOptionPane.showMessageDialog(this, "添加成功");
+            else if(!sqlty.equals("")){
+                stat.executeUpdate(sqlty);
+            }
+            JOptionPane.showMessageDialog(this, "删除成功");
             field.setText("");
             field1.setText("");
             field2.setText("");
             field3.setText("");
             field4.setText("");
             field5.setText("");
-            field6.setText("");
-            field7.setText("");
-            field8.setText("");
-            area1.setText("");
-            area.setText("");
         }catch (Exception e){
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "添加失败");
+            JOptionPane.showMessageDialog(this, "删除失败");
         }finally {
             try{
                 if(rs != null){
@@ -352,9 +289,8 @@ public class AddWin extends JFrame implements ActionListener {
             }
         }
     }
-
     public static void main(String[] args){
-        AddWin addWin = new AddWin();
-        addWin.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        DelWin delWin = new DelWin();
+        delWin.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 }
