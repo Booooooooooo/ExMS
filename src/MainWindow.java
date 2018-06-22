@@ -43,6 +43,7 @@ public class MainWindow extends JFrame implements ActionListener{
 
     private AddWin addWin;
     private DelWin delWin;
+    private ModifyWin modifyWin;
 
     public MainWindow(){
         super("题库管理系统");
@@ -58,6 +59,7 @@ public class MainWindow extends JFrame implements ActionListener{
         addButton.setBorderPainted(false);
         addButton.addActionListener(this);
         deleteButton = new JButton();
+        deleteButton.addActionListener(this);
         deleteButton.setFont(font);
         deleteButton.setVerticalTextPosition(SwingConstants.BOTTOM);
         deleteButton.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -67,6 +69,7 @@ public class MainWindow extends JFrame implements ActionListener{
         deleteButton.setFocusPainted(false);
         deleteButton.setBorderPainted(false);
         modifyButton = new JButton();
+        modifyButton.addActionListener(this);
         modifyButton.setFont(font);
         modifyButton.setVerticalTextPosition(SwingConstants.BOTTOM);
         modifyButton.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -76,6 +79,7 @@ public class MainWindow extends JFrame implements ActionListener{
         modifyButton.setFocusPainted(false);
         modifyButton.setBorderPainted(false);
         findButton = new JButton();
+        findButton.addActionListener(this);
         findButton.setFont(font);
         findButton.setVerticalTextPosition(SwingConstants.BOTTOM);
         findButton.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -275,6 +279,8 @@ public class MainWindow extends JFrame implements ActionListener{
             addWin = new AddWin();
         }else if(event.getSource() == deleteButton){
             delWin = new DelWin();
+        }else if(event.getSource() == modifyButton){
+            modifyWin = new ModifyWin();
         }
     }
 

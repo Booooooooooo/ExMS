@@ -22,6 +22,8 @@ insert into exercise(type, score, info, ans, cour_name, ch_name) values
     ("填空题", 2, "关系中主码的取值必须唯一且非空，这条规则是     完整性规则", "实体",  "数据库", "关系数据库");
 select * from exercise;
 alter table exercise drop primary key;
+alter table exercise add constraint foreign key (ch_name, cour_name) references charpter(name, cour_name) on update cascade on delete cascade;
+show create table exercise;
 
 drop table course;
 desc course;
@@ -32,7 +34,8 @@ create table if not exists `course`(
 insert into course values
 	("数据库", 10), ("c++", 10);
 select * from course;
-update course set ex_num = ex_num - 1 where name in (select cour_name from exercise where exercise.id = 1)
+update course set ex_num = ex_num - 1 where name in (select cour_name from exercise where exercise.id = 1);
+update course set name = "algorithm" where name = "算法";
 
 create table if not exists `charpter`(
 	`name` varchar(150) not null,
@@ -46,6 +49,8 @@ insert into charpter(name, cour_name) values
 	("关系数据库", "数据库"), ("关系数据库标准语言SQL","数据库"), ("关系数据库设计理论", "数据库"),
     ("数据库安全保护", "数据库"), ("数据库设计", "数据库");
 select * from charpter;
+insert into charpter(name, cour_name) values
+	("绪论", "算法");
 select count(*) from charpter, course where course.name = "数据库" and course.id = charpter.cour_id;
 
 
@@ -61,4 +66,10 @@ insert into type values
 	("选择题", "数据库", 5), ("填空题", "数据库", 5);
 alter table type change ex_num ex_num int default 0;
 
+
+
+select * from exercise;
+select * from course;
+select * from type;
+select * from charpter;
 
