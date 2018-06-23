@@ -44,6 +44,7 @@ public class MainWindow extends JFrame implements ActionListener{
     private AddWin addWin;
     private DelWin delWin;
     private ModifyWin modifyWin;
+    private SearchWin searchWin;
 
     public MainWindow(){
         super("题库管理系统");
@@ -281,8 +282,11 @@ public class MainWindow extends JFrame implements ActionListener{
             delWin = new DelWin();
         }else if(event.getSource() == modifyButton){
             modifyWin = new ModifyWin();
+        }else if(event.getSource() == findButton){
+            searchWin = new SearchWin();
         }
     }
+
 
     public static void main(String[] args){
         MainWindow mainwindow = new MainWindow();
