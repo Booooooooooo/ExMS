@@ -42,6 +42,12 @@ public class AddWin extends JFrame implements ActionListener {
     private JTextArea area;
     private JTextArea area1;
 
+
+    private boolean ok = false;
+
+    public boolean isOk() {
+        return ok;
+    }
     public AddWin(){
         super("添加");
 
@@ -319,6 +325,7 @@ public class AddWin extends JFrame implements ActionListener {
                 stat.executeUpdate(sqlty);
             }
             JOptionPane.showMessageDialog(this, "添加成功");
+            ok = true;
             field.setText("");
             field1.setText("");
             field2.setText("");

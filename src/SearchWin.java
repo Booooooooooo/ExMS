@@ -42,6 +42,12 @@ public class SearchWin extends JFrame implements ActionListener {
     private JTextArea area1;
     private SearchRes searchRes;
 
+    private boolean ok = false;
+
+    public boolean isOk() {
+        return ok;
+    }
+
     public SearchWin() {
         super("查找");
 
@@ -418,6 +424,7 @@ public class SearchWin extends JFrame implements ActionListener {
 
     private void clear(){
         JOptionPane.showMessageDialog(null, "查询成功");
+        ok = true;
         field.setText("");
         field1.setText("");
         field2.setText("");

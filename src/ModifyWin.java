@@ -44,6 +44,12 @@ public class ModifyWin extends JFrame implements ActionListener {
     private JTextArea area;
     private JTextArea area1;
 
+    private boolean ok = false;
+
+    public boolean isOk() {
+        return ok;
+    }
+
     public ModifyWin(){
         super("修改");
 
@@ -473,6 +479,7 @@ public class ModifyWin extends JFrame implements ActionListener {
 
     private void clear(){
         JOptionPane.showMessageDialog(this, "修改成功");
+        ok = true;
         field.setText("");
         field1.setText("");
         field2.setText("");

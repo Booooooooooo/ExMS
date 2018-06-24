@@ -2,8 +2,14 @@ import com.sun.corba.se.impl.orbutil.graph.Graph;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class loginWin extends JFrame {
+public class loginWin extends JFrame{
+    private final String loginUser = "admin";
+    private final String loginPass = "12345";
+    private MainWindow mainWindow;
+
     private JLabel username;
     private JLabel pass;
     private JLabel title;
@@ -69,6 +75,22 @@ public class loginWin extends JFrame {
         panel.add(Box.createHorizontalStrut(50));
 
         confirmBtn = new JButton("确认登录");
+        confirmBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String user = userText.getText();
+                String pass = String.valueOf((passText.getPassword()));
+                if(!user.equals(loginUser)){
+                    JOptionPane.showMessageDialog(null, "用户名错误");
+                }else if(!pass.equals(loginPass)){
+                    JOptionPane.showMessageDialog(null, "密码错误");
+                }else{
+                    mainWindow = new MainWindow();
+                    mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+                }
+
+            }
+        });
         confirmBtn.setPreferredSize(new Dimension(70, 50));
         confirmBtn.setFont(font);
         JPanel btnPanel = new JPanel();

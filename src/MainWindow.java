@@ -6,6 +6,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,17 +30,21 @@ public class MainWindow extends JFrame implements ActionListener{
     private JButton deleteButton;
     private JButton modifyButton;
     private JButton findButton;
+    private JButton refreshButton;
     private JPanel toolPanel;
     private Font font = new Font("黑体", Font.PLAIN, 18);
     private List list;
     private JTree tree;
-    private DefaultMutableTreeNode[] node;
-    private DefaultMutableTreeNode[] sonNodes;
     private JTabbedPane pane;
     private JPanel type;
     private JPanel info;
     private JTextArea typeInfo;
     private JTextArea exInfo;
+    private JScrollPane scroll;
+    private DefaultMutableTreeNode top;
+    private JPanel p;
+    private JPanel panel;
+    private DefaultTreeModel dt;
 
     private AddWin addWin;
     private DelWin delWin;
@@ -89,6 +94,16 @@ public class MainWindow extends JFrame implements ActionListener{
         findButton.setContentAreaFilled(false);
         findButton.setFocusPainted(false);
         findButton.setBorderPainted(false);
+        refreshButton = new JButton();
+        refreshButton.addActionListener(this);
+        refreshButton.setFont(font);
+        refreshButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        refreshButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        refreshButton.setText("刷新");
+        refreshButton.setIcon(new ImageIcon("image/refresh.png"));
+        refreshButton.setContentAreaFilled(false);
+        refreshButton.setFocusPainted(false);
+        refreshButton.setBorderPainted(false);
         toolPanel = new JPanel();
         toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.X_AXIS));
         //toolPanel.add(Box.createHorizontalStrut(5));
@@ -99,7 +114,9 @@ public class MainWindow extends JFrame implements ActionListener{
         toolPanel.add(modifyButton);
         toolPanel.add(Box.createHorizontalStrut(5));
         toolPanel.add(findButton);
-        toolPanel.add(Box.createHorizontalStrut(100));
+        toolPanel.add(Box.createHorizontalStrut(5));
+        toolPanel.add(refreshButton);
+        toolPanel.add(Box.createHorizontalStrut(90));
         toolPanel.setBackground(null);
         toolPanel.setOpaque(false);
 
@@ -107,8 +124,8 @@ public class MainWindow extends JFrame implements ActionListener{
         typeInfo.setFont(font);
         exInfo = new JTextArea();
         exInfo.setLineWrap(true);
-        exInfo.setSize(500, 500);
-        JPanel panel = new JPanel();
+        //exInfo.setSize(500, 500);
+        panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.add(Box.createVerticalStrut(5));
         panel.add(toolPanel);
@@ -120,6 +137,7 @@ public class MainWindow extends JFrame implements ActionListener{
         info.setBackground(null);
         info.setOpaque(false);
         JScrollPane scr = new JScrollPane(exInfo);
+        scr.setPreferredSize(new Dimension(500, 750));
         exInfo.setFont(font);
         info.add(scr);
         UIManager.put("TabbedPane.contentOpaque", false);
@@ -133,7 +151,9 @@ public class MainWindow extends JFrame implements ActionListener{
         panel.setBackground(null);
         panel.setOpaque(false);
 
-        DefaultMutableTreeNode top = new DefaultMutableTreeNode("课程管理");
+        DefaultMutableTreeNode[] node = null;
+        DefaultMutableTreeNode[] sonNodes = null;
+        top = new DefaultMutableTreeNode("课程管理");
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             ct = DriverManager.getConnection(url, user, passwd);
@@ -223,7 +243,7 @@ public class MainWindow extends JFrame implements ActionListener{
                     }else{
                         rs = stat.executeQuery(sqlType);
                         while(rs.next()){
-                            displayType += rs.getString("name") + "       " + rs.getInt("ex_num") + "题\n";
+                            displayType += rs.getString("name") + "\t" + rs.getInt("ex_num") + "题\t\n";
                         }
                         if(displayType.equals("")){
                             displayType = "无题目";
@@ -254,9 +274,10 @@ public class MainWindow extends JFrame implements ActionListener{
             }
         });
         tree.setFont(font);
-        JScrollPane scroll = new JScrollPane(tree);
+        scroll = new JScrollPane(tree);
+        dt = new DefaultTreeModel(top);
 
-        JPanel p = new JPanel(){
+        p = new JPanel(){
             protected void paintComponent(Graphics g){
                 ImageIcon icon = new ImageIcon("image/bg.jpg");
                 Image img = icon.getImage();
@@ -284,9 +305,110 @@ public class MainWindow extends JFrame implements ActionListener{
             modifyWin = new ModifyWin();
         }else if(event.getSource() == findButton){
             searchWin = new SearchWin();
+        }else if(event.getSource() == refreshButton){
+            System.out.println(1);
+            refresh();
         }
     }
 
+    private void refresh(){
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            ct = DriverManager.getConnection(url, user, passwd);
+            stat = ct.createStatement();
+            rs = stat.executeQuery("select count(*) from course");
+
+            DefaultMutableTreeNode[] node = null;
+            DefaultMutableTreeNode[] sonNodes= null;
+            top.removeAllChildren();
+            while(rs.next()){
+                node = new DefaultMutableTreeNode[rs.getInt(1)];
+            }
+
+            int i = 0;
+            rs = stat.executeQuery("select name from course");
+            while(rs.next()){
+                String name = rs.getString("name");
+                node[i] = new DefaultMutableTreeNode(name);
+                Statement sstat = ct.createStatement();
+                ResultSet rrs = sstat.executeQuery("select count(*) from charpter where cour_name = \"" + name + "\"");
+
+                while(rrs.next()){
+                    sonNodes = new DefaultMutableTreeNode[rrs.getInt(1)];
+                }
+                rrs = sstat.executeQuery("select charpter.name from charpter where cour_name = \"" + name + "\"");
+                int j = 0;
+                while(rrs.next()){
+                    sonNodes[j] = new DefaultMutableTreeNode(rrs.getString("name"));
+                    node[i].add(sonNodes[j++]);
+                }
+                top.add(node[i++]);
+            }
+
+            DefaultMutableTreeNode selectNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+            if(selectNode == null) return;
+            Object object = selectNode.getUserObject();
+            String name = object.toString();
+            String sqlEx, sqlType;
+            if(selectNode.isLeaf()){
+                sqlEx = "select * from exercise, charpter where exercise.cour_name = charpter.cour_name  and charpter.name = \"" + name + "\" and ch_name = \"" + name +"\"";
+                sqlType = "";
+            }
+            else{
+                sqlEx = "select * from exercise where cour_name = \"" + name + "\"";
+                sqlType = "select * from type where cour_name = \"" + name + "\"";
+            }
+
+            rs = stat.executeQuery(sqlEx);
+            String displayEx = "";
+            while(rs.next()){
+                displayEx += "题号：" + rs.getInt("id") + "\n题型：" + rs.getString("type")
+                        + "\n建立日期:" + rs.getString("date") + "\n分值：" + rs.getInt("score")
+                        + "\n题目：" + rs.getString("info") + "\n答案:" + rs.getString("ans") + "\n\n";
+            }
+            if(displayEx.equals("")){
+                displayEx = "无题目";
+            }
+            exInfo.setText(displayEx);
+
+            String displayType = "";
+            if(sqlType.equals("")){
+                typeInfo.setText("请选择课程");
+            }else{
+                rs = stat.executeQuery(sqlType);
+                while(rs.next()){
+                    displayType += rs.getString("name") + "\t" + rs.getInt("ex_num") + "题\t\n";
+                }
+                if(displayType.equals("")){
+                    displayType = "无题目";
+                }
+                typeInfo.setText(displayType);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            try{
+                if(rs != null){
+                    rs.close();
+                    rs = null;
+                }
+                if(stat != null){
+                    stat.close();
+                    stat = null;
+                }
+                if(ct != null){
+                    ct.close();
+                    ct = null;
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        dt.reload();
+        tree.setModel(dt);
+        scroll.repaint();
+        p.repaint();
+    }
 
     public static void main(String[] args){
         MainWindow mainwindow = new MainWindow();

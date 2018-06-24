@@ -37,6 +37,12 @@ public class DelWin extends JFrame implements ActionListener {
     private JTextArea area;
     private JTextArea area1;
 
+    private boolean ok = false;
+
+    public boolean isOk() {
+        return ok;
+    }
+
     public DelWin(){
         super("删除");
 
@@ -261,6 +267,7 @@ public class DelWin extends JFrame implements ActionListener {
                 stat.executeUpdate(sqlty);
             }
             JOptionPane.showMessageDialog(this, "删除成功");
+            ok = true;
             field.setText("");
             field1.setText("");
             field2.setText("");
