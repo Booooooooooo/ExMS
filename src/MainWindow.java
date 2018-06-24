@@ -31,6 +31,7 @@ public class MainWindow extends JFrame implements ActionListener{
     private JButton modifyButton;
     private JButton findButton;
     private JButton refreshButton;
+    private JButton examButton;
     private JPanel toolPanel;
     private Font font = new Font("黑体", Font.PLAIN, 18);
     private List list;
@@ -50,6 +51,7 @@ public class MainWindow extends JFrame implements ActionListener{
     private DelWin delWin;
     private ModifyWin modifyWin;
     private SearchWin searchWin;
+    private Exam exam;
 
     public MainWindow(){
         super("题库管理系统");
@@ -104,6 +106,16 @@ public class MainWindow extends JFrame implements ActionListener{
         refreshButton.setContentAreaFilled(false);
         refreshButton.setFocusPainted(false);
         refreshButton.setBorderPainted(false);
+        examButton = new JButton();
+        examButton.addActionListener(this);
+        examButton.setFont(font);
+        examButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        examButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        examButton.setText("生成试题");
+        examButton.setIcon(new ImageIcon("image/exam.png"));
+        examButton.setContentAreaFilled(false);
+        examButton.setFocusPainted(false);
+        examButton.setBorderPainted(false);
         toolPanel = new JPanel();
         toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.X_AXIS));
         //toolPanel.add(Box.createHorizontalStrut(5));
@@ -116,7 +128,9 @@ public class MainWindow extends JFrame implements ActionListener{
         toolPanel.add(findButton);
         toolPanel.add(Box.createHorizontalStrut(5));
         toolPanel.add(refreshButton);
-        toolPanel.add(Box.createHorizontalStrut(90));
+        toolPanel.add(Box.createHorizontalStrut(5));
+        toolPanel.add(examButton);
+        toolPanel.add(Box.createHorizontalStrut(80));
         toolPanel.setBackground(null);
         toolPanel.setOpaque(false);
 
@@ -230,7 +244,8 @@ public class MainWindow extends JFrame implements ActionListener{
                     while(rs.next()){
                         displayEx += "题号：" + rs.getInt("id") + "\n题型：" + rs.getString("type")
                                 + "\n建立日期:" + rs.getString("date") + "\n分值：" + rs.getInt("score")
-                                + "\n题目：" + rs.getString("info") + "\n答案:" + rs.getString("ans") + "\n\n";
+                                + "\n抽取次数：" + rs.getInt("times") + "\n题目：" + rs.getString("info")
+                                + "\n答案:" + rs.getString("ans") + "\n\n";
                     }
                     if(displayEx.equals("")){
                         displayEx = "无题目";
@@ -306,8 +321,17 @@ public class MainWindow extends JFrame implements ActionListener{
         }else if(event.getSource() == findButton){
             searchWin = new SearchWin();
         }else if(event.getSource() == refreshButton){
-            System.out.println(1);
             refresh();
+        }else if(event.getSource() == examButton){
+            DefaultMutableTreeNode selectNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+            if(selectNode == null) return;
+            Object object = selectNode.getUserObject();
+            String name = object.toString();
+            if(selectNode.isLeaf() || name.equals("")){
+                JOptionPane.showMessageDialog(null, "请选择课程");
+            }else{
+                exam = new Exam(name);
+            }
         }
     }
 
@@ -364,7 +388,8 @@ public class MainWindow extends JFrame implements ActionListener{
             while(rs.next()){
                 displayEx += "题号：" + rs.getInt("id") + "\n题型：" + rs.getString("type")
                         + "\n建立日期:" + rs.getString("date") + "\n分值：" + rs.getInt("score")
-                        + "\n题目：" + rs.getString("info") + "\n答案:" + rs.getString("ans") + "\n\n";
+                        + "\n抽取次数：" + rs.getInt("times") + "\n题目：" + rs.getString("info")
+                        + "\n答案:" + rs.getString("ans") + "\n\n";
             }
             if(displayEx.equals("")){
                 displayEx = "无题目";
